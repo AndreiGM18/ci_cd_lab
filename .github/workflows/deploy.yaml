@@ -1,11 +1,12 @@
 # .github/workflows/deploy.yaml
 name: Build CI/CD
 
-# Trigger the workflow on a commit push to the `main` branch
+# Trigger the workflow on a commit push to the `main` branch or manually
 on:
   push:
     branches:
       - main
+  workflow_dispatch: # This allows manual triggering
 
 jobs:
   test:
@@ -42,3 +43,34 @@ jobs:
 
       - name: Compile binary
         run: go build -o myapp
+
+  build:
+    runs-on: ubuntu-latest
+    needs: compile  # Run only after the `compile` job is successful
+    if: success()  # Ensure this job runs only if previous jobs succeeded
+
+    permissions:
+      contents: write  # Grant permissions for accessing repository contents
+      packages: write  # Grant permissions for accessing GitHub Container Registry
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}             # GitHub username (actor triggering the workflow)
+          password: ${{ secrets.GITHUB_TOKEN }}     # Automatically provided GitHub token
+
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.actor }}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'):latest .
+
+      - name: Push Docker image
+        run: docker push ghcr.io/${{ github.actor }}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'):latest
