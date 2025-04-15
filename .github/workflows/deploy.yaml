@@ -70,7 +70,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}     # Automatically provided GitHub token
 
       - name: Build Docker image
-        run: docker build -t ghcr.io/${{ github.actor }}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'):latest .
+        run: docker build -t ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'):latest .
 
       - name: Push Docker image
-        run: docker push ghcr.io/${{ github.actor }}/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'):latest
+        run: docker push ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]'):latest
+
