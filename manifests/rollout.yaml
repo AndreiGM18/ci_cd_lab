@@ -9,9 +9,11 @@ spec:
   strategy:
     canary:
       steps:
-        - setWeight: 50
-        - pause: { duration: 60s }
-        - setWeight: 100
+        - setWeight: 25       # Shift 25% of traffic to the canary
+        - pause: { duration: 120s }  # Pause for 120 seconds
+        - setWeight: 75       # Shift 75% of traffic to the canary
+        - pause: { duration: 120s }  # Pause for another 120 seconds
+        - setWeight: 100      # Shift 100% of traffic to the canary
   selector:
     matchLabels:
       app: go-simple-webserver
