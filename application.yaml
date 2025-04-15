@@ -4,11 +4,17 @@ metadata:
   name: go-simple-webserver
   namespace: argocd
 spec:
-  project: default
-  source:
-    repoURL: https://github.com/AndreiGM18/ci_cd_lab.git
-    targetRevision: HEAD
-    path: manifests
+  project: default  # Add the project field here
   destination:
     server: https://kubernetes.default.svc
     namespace: default
+  source:
+    repoURL: 'https://github.com/AndreiGM18/ci_cd_lab'
+    targetRevision: main
+    path: manifests
+  syncPolicy:
+    automated:
+      prune: true            # Automatically delete resources that are no longer in the repo
+      selfHeal: true         # Automatically heal resources if they go out of sync
+    retry:
+      limit: 5               # Retry the sync if it fails (up to 5 retries)
